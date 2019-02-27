@@ -152,65 +152,79 @@
       Submit</button>
   </div>
 
-  <footer class="footer">
-    <div class="container">
-      <p><a href="/api/friends">API Friends List</a> | <a href="https://github.com/lyore15/FriendFinder">GitHub Repo</a>
-      </p>
+ 		<!-- Modal after survey completion -->
+     <div id="friendFinderModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal">&times;</button>
+              <h3 class="modal-title">Your New Best Friend</h1>
+            </div>
+            <div class="modal-body">
+              <h2 id="friendFinder"></h2>
+              <img id="friendFinderPhoto" src="#">
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
-  </footer>
-
-
-  Link in jQuery
-  <script src="https://code.jquery.com/jquery.js"></script>
-
-  <!-- Latest compiled and minified JavaScript (USED FOR THE MODAL) -->
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
-    integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
-    crossorigin="anonymous"></script>
-
+  
+    <footer class="footer">
+        <div class="container">
+          <p><a href="/api/friends">API Friends List</a> | <a href="https://github.com/lyore15/FriendFinder">GitHub Repo</a>
+          </p>
+        </div>
+      </footer>
+  
+    <script
+      src="https://code.jquery.com/jquery-3.2.1.min.js"
+      integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+      crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  </body>
+  </html>
+  
   <script type="text/javascript">
-    // In this code below we create the Front-end JavaScript which "POSTS" our form data to our express server.
-
-
-    $("#submit").on("click", function (event) {
+    $("#submit").on("click", function(event) {
       event.preventDefault();
-
-      // Here we grab the form elements
-      var newFriend = {
-        name: $("#name").val().trim(),
-        photo: $("#photo").val().trim(),
-        score: [$("#question1").val(), $("#question2").val(), $("#question3").val(), $("#question4").val(), $("#question5").val(), $("#question6").val(), $("#question7").val(), $("#question8").val(), $("#question9").val(), $("#question10").val()]
-
-      };
-
-      console.log(newFriend);
-
-      // This line is the magic. It"s very similar to the standard ajax function we used.
-      // Essentially we give it a URL, we give it the object we want to send, then we have a "callback".
-      // The callback is the response of the server. In our case, we set up code in api-routes that "returns" true or false
-      // depending on if a tables is available or not.
-
-      $.post("/api/friends", newFriend,
-          function (data) {
-
-          // If a table is available... tell user they are booked.
-          if (data) {
-            alert("Yay! You are officially booked!");
-          }
-
-          // If a table is available... tell user they on the waiting list.
-          else {
-            alert("Sorry you are on the wait list");
-          }
-
-          // Clear the form when submitting
-          $("#reserve-name").val("");
-          $("#reserve-phone").val("");
-          $("#reserve-email").val("");
-          $("#reserve-unique-id").val("");
-
+      // Form validation
+      var valid = true;
+      if($("#name").val() === "" || $("#photo").val() === "") {
+        valid = false;
+      } else if($("#q1").val() === "empty" || $("#q2").val() === "empty" || $("#q3").val() === "empty" || $("#q4").val() === "empty" || $("#q5").val() === "empty" || $("#q6").val() === "empty" || $("#q7").val() === "empty" || $("#q8").val() === "empty" || $("#q9").val() === "empty" || $("#q10").val() === "empty") {
+        valid = false;
+      }
+      if(valid === true) {
+        var newFriend = {
+          name: $("#name").val().trim(),
+          photo: $("#photo").val().trim(),
+          scores: [
+            $("#q1").val(),
+            $("#q2").val(),
+            $("#q3").val(),
+            $("#q4").val(),
+            $("#q5").val(),
+            $("#q6").val(),
+            $("#q7").val(),
+            $("#q8").val(),
+            $("#q9").val(),
+            $("#q10").val()
+          ]
+        };
+        var currentURL = window.location.origin;
+        // Ajax call for receiving response after POST req
+        $.post(currentURL + "/api/friends", newFriend, function(data) {
+          $("#friendFinder").text(data.name);
+          $("#friendFinderPhoto").attr("src", data.photo);
+          $("#friendFinderModal").modal("toggle");
         });
-
+      } else {
+        // If a required field is missing, show alert
+        alert("Survey is incomplete!");
+      }
     });
 
   </script>
